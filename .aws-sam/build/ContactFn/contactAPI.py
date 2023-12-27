@@ -19,10 +19,12 @@ dynamodb = boto3.resource('dynamodb', region_name='us-east-2')
 
 getMethod = 'GET'
 postMethod = 'POST'
+putMethod = 'PUT'
 deleteMethod = 'DELETE'
 createPath = '/createContact'
 allContactsPath = '/allContacts'
 contactPath = '/contact'
+updatePath = '/updateContact'
 deletePath = '/deleteContact'
 
 
@@ -56,6 +58,13 @@ def lambda_handler(event, context):
         logger.info("Getting contact")
         # invoke getContact function to get a contact
         return getContact(contactTable, event['queryStringParameters']['phone'])
+#   update a contact    
+    elif httpMethod == putMethod and event['path'] == updatePath:
+        logger.info("Updating contact")
+        # invoke updateContact function to update a contact
+        contactItem = json.loads(event['body'])
+        logger.info("Contact received: " + str(contactItem))
+        return updateContact(contactTable, event['queryStringParameters']['phone'], contactItem)
 #   delete a contact
     elif httpMethod == deleteMethod and event['path'] == deletePath:
         logger.info("Deleting contact")
@@ -66,8 +75,6 @@ def lambda_handler(event, context):
         return buildResponse(404, 'Not Found')
 
 # function to create a new contact
-
-
 def createContact(contactTable, contactItem):
     try:
         phone = contactItem['phone']
@@ -84,8 +91,6 @@ def createContact(contactTable, contactItem):
     return buildResponse(200, 'Contact added successfully!')
 
 # function get all contacts
-
-
 def getAllContacts(contactTable):
     try:
         response = contactTable.scan()
@@ -110,6 +115,31 @@ def getContact(contactTable, phone):
         logger.error("error in retrieving contact" + str(e))
         return buildResponse(500, 'Error in retrieving contact')
     return buildResponse(200, response['Item'])
+
+# funtion to update a contact based on a phone number
+def updateContact(contactTable,phone,contactItem):
+    try:
+        contactTable.update_item(
+            Key={
+                'phone': phone
+            },
+            UpdateExpression="set firstName=:fn, lastName=:ln, email=:em, notes=:no",
+            ExpressionAttributeValues={
+                ':fn': contactItem['firstName'],
+                ':ln': contactItem['lastName'],
+                ':em': contactItem['email'],
+                ':no': contactItem['notes']
+            },
+            ConditionExpression="attribute_exists(phone)",
+            ReturnValues="UPDATED_NEW"
+        )
+        logger.info("Contact updated successfully!")
+    except Exception as e:
+        logger.error("error in updating contact" + str(e))
+        if 'ConditionalCheckFailedException' in str(e):
+            return buildResponse(409, 'Error:Contact not found')
+        return buildResponse(500, 'Error in updating contact')
+    return buildResponse(200, 'Contact updated successfully!')
 
 # function to delete a contact based on a phone number
 def deleteContact(contactTable,phone):

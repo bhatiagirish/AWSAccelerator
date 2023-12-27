@@ -17,7 +17,7 @@ Resources:
         - x86_64
       CodeUri: .
       Handler: contactAPI.lambda_handler
-      Runtime: python3.10
+      Runtime: python3.12
       Timeout: 15
       MemorySize: 128   # defauld 128mb, upto 10GB
       Policies: 
@@ -46,6 +46,14 @@ Resources:
           Properties:
             Path: /contact
             Method: get
+            RestApiId: !Ref ContactApi
+            # Auth:
+            #   Authorizer: OAuth2
+        updateConteact:
+          Type: Api
+          Properties:
+            Path: /updateContact
+            Method: put
             RestApiId: !Ref ContactApi
             # Auth:
             #   Authorizer: OAuth2
@@ -88,6 +96,9 @@ Outputs:
   getContactAPIEndpoint:
     Description: "get a  Contact by phone API dev stage Endpoint"
     Value: !Sub "https://${ContactApi}.execute-api.${AWS::Region}.amazonaws.com/dev/contact"
+  updateContactAPIEndpoint:
+    Description: "update a  Contact by phone API dev stage Endpoint"
+    Value: !Sub "https://${ContactApi}.execute-api.${AWS::Region}.amazonaws.com/dev/updateContact"
   deleteContactAPIEndpoint:
     Description: "delete a  Contact by phone API dev stage Endpoint"
     Value: !Sub "https://${ContactApi}.execute-api.${AWS::Region}.amazonaws.com/dev/deleteContact" 

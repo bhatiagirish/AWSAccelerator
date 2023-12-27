@@ -14,7 +14,7 @@ Resources:
       - x86_64
       CodeUri: ContactFn
       Handler: contactAPI.lambda_handler
-      Runtime: python3.10
+      Runtime: python3.12
       Timeout: 15
       MemorySize: 128
       Policies:
@@ -41,6 +41,13 @@ Resources:
           Properties:
             Path: /contact
             Method: get
+            RestApiId:
+              Ref: ContactApi
+        updateConteact:
+          Type: Api
+          Properties:
+            Path: /updateContact
+            Method: put
             RestApiId:
               Ref: ContactApi
         deleteConteact:
@@ -78,6 +85,10 @@ Outputs:
     Description: get a  Contact by phone API dev stage Endpoint
     Value:
       Fn::Sub: https://${ContactApi}.execute-api.${AWS::Region}.amazonaws.com/dev/contact
+  updateContactAPIEndpoint:
+    Description: update a  Contact by phone API dev stage Endpoint
+    Value:
+      Fn::Sub: https://${ContactApi}.execute-api.${AWS::Region}.amazonaws.com/dev/updateContact
   deleteContactAPIEndpoint:
     Description: delete a  Contact by phone API dev stage Endpoint
     Value:
