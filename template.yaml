@@ -17,7 +17,7 @@ Resources:
         - x86_64
       CodeUri: .
       Handler: contactAPI.lambda_handler
-      Runtime: python3.12
+      Runtime: python3.11
       Timeout: 15
       MemorySize: 128   # defauld 128mb, upto 10GB
       Policies: 
