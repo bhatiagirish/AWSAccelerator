@@ -1,6 +1,9 @@
 
-# create a lambda fuction to post contact detail to dynamodb
+# This lambda function support various methods to support CRUD operation for Contact/AddressBook
 # contact detail include phone, firstName, lastName, email, notes
+# This function is best used in integration with Rest API via AWS API Gateway
+# to use this code, deploy a lambda function and create API end points as below: 
+# /contact /allContacts /createContact /updateContact /deleteContact
 # version 1.0
 # created date 10/8/2023
 # created by: Girish Bhatia
