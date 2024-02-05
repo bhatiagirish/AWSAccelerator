@@ -16,9 +16,10 @@ Executing program
 create a lambda function, use this code.
 create API end points as below:
 /contact
-/AllContacts
-/UpdateContact
-/DeleteContact
+/allContacts
+/createContact
+/updateContact
+/deleteContact
 
 How to run the program
 Use Postman or integate with your front end using the API endpoints generated using AWS API Gateway
