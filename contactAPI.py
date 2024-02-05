@@ -13,12 +13,18 @@ import boto3
 import json
 import logging
 
+
+# create a logger
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-2')
 
 # setup http method and path vaariables
+# setup http method and path variables to support GET, POST, PUT, DELETE Method
+# path variables to support createContact, getAllContacts, getContact, updateContact, deleteContact API endpoints
 
 getMethod = 'GET'
 postMethod = 'POST'
@@ -30,6 +36,10 @@ contactPath = '/contact'
 updatePath = '/updateContact'
 deletePath = '/deleteContact'
 
+
+# this is the main lambda function
+# this function will invoke various sub function depending on the http method and path variable
+# this function can also be break into multiple independent lambda functions.
 
 def lambda_handler(event, context):
     logger.info(event)
@@ -45,6 +55,7 @@ def lambda_handler(event, context):
         }
 
 # create a new contact
+# this function will invoke createContact function to create a new contact
     if httpMethod == postMethod and event['path'] == createPath:
         logger.info("Adding new contact")
         contactItem = json.loads(event['body'])
@@ -52,16 +63,19 @@ def lambda_handler(event, context):
         # invoke createContact function to create a new contact
         return createContact(contactTable, contactItem)
 #  get all contacts
+# this function will invoke getAllContacts function to get all contacts
     elif httpMethod == getMethod and event['path'] == allContactsPath:
         logger.info("Getting all contacts")
         # invoke getAllContacts function to get all contacts
         return getAllContacts(contactTable)
 #  get a contact
+# this function will invoke getContact function to get a contact
     elif httpMethod == getMethod and event['path'] == contactPath:
         logger.info("Getting contact")
         # invoke getContact function to get a contact
         return getContact(contactTable, event['queryStringParameters']['phone'])
-#   update a contact    
+#   update a contact 
+# this function will invoke updateContact function to update a contact   
     elif httpMethod == putMethod and event['path'] == updatePath:
         logger.info("Updating contact")
         # invoke updateContact function to update a contact
@@ -69,6 +83,7 @@ def lambda_handler(event, context):
         logger.info("Contact received: " + str(contactItem))
         return updateContact(contactTable, event['queryStringParameters']['phone'], contactItem)
 #   delete a contact
+# this function will invoke deleteContact function to delete a contact
     elif httpMethod == deleteMethod and event['path'] == deletePath:
         logger.info("Deleting contact")
         # invoke deleteContact function to delete a contact
@@ -78,6 +93,7 @@ def lambda_handler(event, context):
         return buildResponse(404, 'Not Found')
 
 # function to create a new contact
+# this function will add a new contact to the database
 def createContact(contactTable, contactItem):
     try:
         phone = contactItem['phone']
@@ -94,6 +110,7 @@ def createContact(contactTable, contactItem):
     return buildResponse(200, 'Contact added successfully!')
 
 # function get all contacts
+# this function will get all contacts from the database
 def getAllContacts(contactTable):
     try:
         response = contactTable.scan()
@@ -104,6 +121,7 @@ def getAllContacts(contactTable):
     return buildResponse(200, response['Items'])
 
 # function to get a contact based on phone number
+# this function will get a contact from the database based on phone number
 def getContact(contactTable, phone):
     try:
         response = contactTable.get_item(
@@ -120,6 +138,7 @@ def getContact(contactTable, phone):
     return buildResponse(200, response['Item'])
 
 # funtion to update a contact based on a phone number
+# this function will update a contact in the database based on phone number
 def updateContact(contactTable,phone,contactItem):
     try:
         contactTable.update_item(
@@ -145,6 +164,7 @@ def updateContact(contactTable,phone,contactItem):
     return buildResponse(200, 'Contact updated successfully!')
 
 # function to delete a contact based on a phone number
+# this function will delete a contact from the database based on phone number
 def deleteContact(contactTable,phone):
     response = getContact(contactTable, phone)
     if response['statusCode'] != 200:
@@ -163,6 +183,7 @@ def deleteContact(contactTable,phone):
 
 
 # function to build responde based on status code and message
+# this function will build a response based on status code and message
 def buildResponse(statusCode, message):
     return {
         'statusCode': statusCode,
